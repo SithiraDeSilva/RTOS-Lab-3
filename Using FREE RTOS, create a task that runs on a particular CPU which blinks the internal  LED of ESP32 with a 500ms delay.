@@ -1,0 +1,32 @@
+#if CONFIG_FREERTOS_UNICORE
+static const BaseType_t app_cpu = 0;
+#else
+static const BaseType_t app_cpu = 1;
+#endif
+//pins
+static const int led_pin = 2;
+//blink LED
+void toggleLED(void *parameter) {
+  while (1) {
+    digitalWrite(led_pin, HIGH);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+    digitalWrite(led_pin, LOW);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+  }
+}
+void setup() {
+  //config pin
+  pinMode(led_pin, OUTPUT);
+  //Run
+  xTaskCreatePinnedToCore( //use xTaskCreate() in Vanilla FreeRTos
+          toggleLED, //Function to be Called
+          "Toggle LED", //Task name
+          1024,//Stack size
+          NULL, //Parameter to pass function
+          1, //Task Priority (0 to configMAX_PRIORITIES=1 (24))
+          NULL, //Task handle
+          app_cpu); //Run one core
+
+}
+void loop() {
+}
